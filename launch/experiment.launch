@@ -1,0 +1,10 @@
+<launch>
+	<node
+		name = "$(anon record_experiment)"
+		pkg = "rosbag"
+		type = "record"
+		args = "-a
+				-o PREFIX"
+		cwd = "node"
+	/>
+</launch>
