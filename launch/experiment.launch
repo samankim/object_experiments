@@ -17,6 +17,8 @@
 		/>
 	</include>
 
+
+/* MAKE THIS AN ARG SO THAT YOU CAN PUT IN YOUR OWN SCRIPT FOR LATER */
 	<node
 		name = 
 		pkg = moveit_tutorials
