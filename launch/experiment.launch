@@ -1,36 +1,23 @@
 <launch>
-	<!-- TODO: use kinect-demo launch file. Start up the Kinects -->
-
-	<!-- TODO: MAKE THIS ITS OWN LAUNCH FILE. Start up UR10 script -->
+	<!-- TODO: use kinect-demo launch file. Start up the Kinects.
+		 Specify the frame rate as an arg. -->
 	<include file = "$(find pkg-name)/path/filename.xml">
-		<arg
-			limited:=true
-/* change to a machine tag if possible */
-			robot_ip:= 129.215.96.116
-			reverse_port:= REVERSE_PORT 
-		/>
-	</include>
 
-	<include file = "$(find pkg-name)/path/filename.xml">
-		<arg
-			limited:=true
-		/>
-	</include>
+	<!-- Start up UR10 -->
+	<include file = "$(find pkg-name)/launch/filename.xml">
 
-
-/* MAKE THIS AN ARG SO THAT YOU CAN PUT IN YOUR OWN SCRIPT FOR LATER */
+	<!-- Begin robot arm script -->	
 	<node
-		name = 
-		pkg = moveit_tutorials
-		type = 	
+		name = "robot_script" 
+		pkg = "moveit_tutorials"
+		type = "move_group_python_interface_tutorial.py"	
+	/>
 
 	<!-- TODO: Move to another launch file///Record topics in rosbag -->
 	<node
 		name = "$(anon record_experiment)"
 		pkg = "rosbag"
-		type = "record"
-		args = "-a
-				-o PREFIX"
-		cwd = "node"
+		type = "record record"
+		args = "-a"
 	/>
 </launch>
