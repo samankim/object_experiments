@@ -1,23 +1,18 @@
 <launch>
-	<!-- TODO: use kinect-demo launch file. Start up the Kinects.
-		 Specify the frame rate as an arg. -->
-	<include file = "$(find pkg-name)/path/filename.xml">
+        <arg name = "duration" value = "10s"/>
+        <!-- Begin robot arm script -->
+        <node
+                name = "robot_script"
+                pkg = "moveit_tutorials"
+                type = "move_group_python_interface_tutorial.py"
+        />
 
-	<!-- Start up UR10 -->
-	<include file = "$(find pkg-name)/launch/filename.xml">
-
-	<!-- Begin robot arm script -->	
-	<node
-		name = "robot_script" 
-		pkg = "moveit_tutorials"
-		type = "move_group_python_interface_tutorial.py"	
-	/>
-
-	<!-- TODO: Move to another launch file///Record topics in rosbag -->
-	<node
-		name = "$(anon record_experiment)"
-		pkg = "rosbag"
-		type = "record record"
-		args = "-a"
-	/>
+        <!-- Record topics in rosbag -->
+        <node
+                name = "$(anon record_experiment)"
+                pkg = "rosbag"
+                type = "record"
+                args = "--duration=$(arg duration) -a"
+        />
 </launch>
+
