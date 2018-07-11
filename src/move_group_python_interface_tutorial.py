@@ -93,8 +93,8 @@ class MoveGroupPythonInterface(object):
     ## This interface can be used to plan and execute motions on the Panda:
     group_name = "manipulator"
     group = moveit_commander.MoveGroupCommander(group_name)
-    group.set_max_acceleration_scaling_factor(0.01)
-    group.set_max_velocity_scaling_factor(0.01)
+    group.set_max_acceleration_scaling_factor(0.1)
+    group.set_max_velocity_scaling_factor(0.1)
 
 
     ## We create a `DisplayTrajectory`_ publisher which is used later to publish
@@ -166,14 +166,15 @@ class MoveGroupPythonInterface(object):
     post_coll_pose.orientation.z = -0.504404664407
     post_coll_pose.orientation.w = 0.485448275813
 
-    plan_and_execute_pose_goal(pre_coll_pose, true)
-    plan_and_execute_pose_goal(post_coll_pose, true)
-    plan_and_execute_pose_goal(init_pose, true)
+    self.go_to_pose_goal(pre_coll_pose)
+    self.go_to_pose_goal(post_coll_pose)
+    self.go_to_pose_goal(init_pose)
     
-  # Plans a pose goal and executes if indicated. This method is used
+  # Plans a pose goal and executes. This method is used
   # instead of cartesian path planning and execution because it is
   # subject to velocity and acceleration limitations.
-  def plan_pose_goal(pose_goal, execute = true):
+  def go_to_pose_goal(self, pose_goal):
+
     # Add pose goals and execute path
     self.group.set_pose_target(pose_goal)
     plan = self.group.go(wait=True)
@@ -184,19 +185,19 @@ class MoveGroupPythonInterface(object):
     # It is always good to clear your targets after planning with poses.
     # Note: there is no equivalent function for clear_joint_value_targets()
     self.group.clear_pose_targets()
-  
+
   
   # Prints to screen the current pose in a format that is easily copied into the code for later use.
-  def get_formatted_current_pose(pose_name)
+  def get_formatted_current_pose(self, pose_name):
     current_pose = self.group.get_current_pose()
     print pose_name + " = geometry_msgs.msg.Pose()"
-    print pose_name + ".position.x = " str(current.pose.position.x)
-    print pose_name + ".position.y = " str(current.pose.position.y)
-    print pose_name + ".position.z = " str(current.pose.position.z)
-    print pose_name + ".orientation.x = " str(current.pose.orientation.x)
-    print pose_name + ".orientation.y = " str(current.pose.orientation.y)
-    print pose_name + ".orientation.z = " str(current.pose.orientation.z)
-    print pose_name + ".orientation.w = " str(current.pose.orientation.w)
+    print pose_name + ".position.x = " + str(current_pose.position.x)
+    print pose_name + ".position.y = " + str(current_pose.position.y)
+    print pose_name + ".position.z = " + str(current_pose.position.z)
+    print pose_name + ".orientation.x = " + str(current_pose.orientation.x)
+    print pose_name + ".orientation.y = " + str(current_pose.orientation.y)
+    print pose_name + ".orientation.z = " + str(current_pose.orientation.z)
+    print pose_name + ".orientation.w = " + str(current_pose.orientation.w)
     
     
 def main():
@@ -204,7 +205,8 @@ def main():
     # Initialize MoveIt commander
     robot_commander = MoveGroupPythonInterface()
     # Execute collision
-    robot_commander.execute_collision()
+    robot_commander.get_formatted_current_pose()
+    # robot_commander.execute_collision()
     print "============ Collision complete!"
     
   except rospy.ROSInterruptException:
