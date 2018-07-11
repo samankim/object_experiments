@@ -1,0 +1,8 @@
+# Goal definition
+std_msgs/String choreography # Specify which robot arm choreography to execute
+---
+# Result definition
+bool in_progress
+---
+# Feedback message
+bool success

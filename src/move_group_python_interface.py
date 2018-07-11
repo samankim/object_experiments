@@ -40,6 +40,8 @@ import sys
 import copy
 import rospy
 import tf
+import actionlib
+import object_experiments.msg
 import moveit_commander
 import moveit_msgs.msg
 import geometry_msgs.msg
@@ -69,6 +71,26 @@ def all_close(goal, actual, tolerance):
 
   return True
 
+class Choreography(object):
+  _feedback = object_experiments.msg.ChoreographyFeedback()
+  _result = object_experiments.msg.ChoreographyResult()
+
+  def __init__(self, name):
+	self.action_name = name
+	self.server = actionlib.SimpleActionServer(self.action_name, 
+											object_experiments.msg.Choreography, 
+											self.execute, 
+											auto_start = False)
+	self.server.start()
+
+  def execute(self,goal):
+	rospy.loginfo('Starting choreography: %s' % (goal))
+
+	execute_choreography(goal)
+
+	self.server.set_succeeded(self._result)
+
+
 class MoveGroupPythonInterface(object):
   def __init__(self):
     super(MoveGroupPythonInterface, self).__init__()
@@ -93,11 +115,15 @@ class MoveGroupPythonInterface(object):
     ## This interface can be used to plan and execute motions on the Panda:
     group_name = "manipulator"
     group = moveit_commander.MoveGroupCommander(group_name)
-    group.set_max_acceleration_scaling_factor(0.1)
+    
+	# Initialize velocity and acceleration scaling factors to prevent
+	# overly fast movements. Can be changed later using the go_to_pose_goal
+	# and go_to_joint_state functions.
+	group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
 
 
-    ## We create a `DisplayTrajectory`_ publisher which is used later to publish
+    ## Create a `DisplayTrajectory`_ publisher which may be used to publish
     ## trajectories for RViz to visualize:
     display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
                                                    moveit_msgs.msg.DisplayTrajectory,
@@ -166,30 +192,45 @@ class MoveGroupPythonInterface(object):
     post_coll_pose.orientation.z = -0.504404664407
     post_coll_pose.orientation.w = 0.485448275813
 
-    self.go_to_pose_goal(pre_coll_pose)
+    
+	self.go_to_pose_goal(pre_coll_pose)
 
-    self.go_to_joint_state()
+	# post-collision joint state
+    post_coll_joint_goal = self.group.get_current_joint_values()
+	post_coll_joint_goal[3] -= pi / 6
+
+    self.go_to_joint_state(post_coll_joint_goal)
 
     self.go_to_pose_goal(init_pose)
 
- 
-  def go_to_joint_state(self):
-    joint_goal = self.group.get_current_joint_values()
-    joint_goal[3] -= pi / 6
-        # The go command can be called with joint values, poses, or without any
-    # parameters if you have already set the pose or joint target for the group
-    self.group.go(joint_goal, wait=True)
+
+  # Moves the robot to the specified joint state with the
+  # specified velocity and acceleration. Velocity
+  # and acceleration are values between [0,1], corresponding
+  # to the scaling factor for the reduction of the maximum 
+  # joint velocity and acceleration.
+  def go_to_joint_state(self, joint_goal, velocity, acceleration):
+    # Set velocity and acceleration scaling factors. 
+    group.set_max_velocity_scaling_factor(velocity)
+	group.set_max_acceleration_scaling_factor(acceleration)
+	
+	self.group.go(joint_goal, wait=True)
 
     # Calling ``stop()`` ensures that there is no residual movement
     self.group.stop()
 
 
-  # Plans a pose goal and executes. This method is used
-  # instead of cartesian path planning and execution because it is
-  # subject to velocity and acceleration limitations.
-  def go_to_pose_goal(self, pose_goal):
 
-    # Add pose goals and execute path
+  # Plans a pose goal and executes the path. This method is preferable 
+  # to cartesian path planning and execution because velocity and 
+  # acceleration limitations can be set.
+  def go_to_pose_goal(self, pose_goal, velocity, acceleration):
+    
+	# Set velocity and acceleration scaling factors. 
+    group.set_max_velocity_scaling_factor(velocity)
+	group.set_max_acceleration_scaling_factor(acceleration)
+    
+	# Add pose goals and execute path
     self.group.set_pose_target(pose_goal)
     plan = self.group.go(wait=True)
     
@@ -200,8 +241,10 @@ class MoveGroupPythonInterface(object):
     # Note: there is no equivalent function for clear_joint_value_targets()
     self.group.clear_pose_targets()
 
+
   
-  # Prints to screen the current pose in a format that is easily copied into the code for later use.
+  # Prints to screen the current pose of the robot in a format that allows 
+  # for easy hardcoding of a particular pose.
   def get_formatted_current_pose(self, pose_name):
     current_pose = self.group.get_current_pose()
     print pose_name + " = geometry_msgs.msg.Pose()"
@@ -213,8 +256,9 @@ class MoveGroupPythonInterface(object):
     print pose_name + ".orientation.z = " + str(current_pose.orientation.z)
     print pose_name + ".orientation.w = " + str(current_pose.orientation.w)
     
+
     
-def main():
+def execute_choreography(goal):
   try:
     # Initialize MoveIt commander
     robot_commander = MoveGroupPythonInterface()
@@ -228,4 +272,6 @@ def main():
     return
 
 if __name__ == '__main__':
-  main()
+  rospy.init_node('choreography')
+  server = Choreography(rospy.get_name())
+  rospy.spin()
