@@ -167,9 +167,23 @@ class MoveGroupPythonInterface(object):
     post_coll_pose.orientation.w = 0.485448275813
 
     self.go_to_pose_goal(pre_coll_pose)
-    self.go_to_pose_goal(post_coll_pose)
+
+    self.go_to_joint_state()
+
     self.go_to_pose_goal(init_pose)
-    
+
+ 
+  def go_to_joint_state(self):
+    joint_goal = self.group.get_current_joint_values()
+    joint_goal[3] -= pi / 6
+        # The go command can be called with joint values, poses, or without any
+    # parameters if you have already set the pose or joint target for the group
+    self.group.go(joint_goal, wait=True)
+
+    # Calling ``stop()`` ensures that there is no residual movement
+    self.group.stop()
+
+
   # Plans a pose goal and executes. This method is used
   # instead of cartesian path planning and execution because it is
   # subject to velocity and acceleration limitations.
@@ -205,8 +219,7 @@ def main():
     # Initialize MoveIt commander
     robot_commander = MoveGroupPythonInterface()
     # Execute collision
-    robot_commander.get_formatted_current_pose()
-    # robot_commander.execute_collision()
+    robot_commander.execute_collision()
     print "============ Collision complete!"
     
   except rospy.ROSInterruptException:
