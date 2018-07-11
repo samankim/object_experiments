@@ -34,14 +34,7 @@
 #
 # Author: Acorn Pooley, Mike Lautman
 
-## BEGIN_SUB_TUTORIAL imports
-##
-## To use the Python MoveIt! interfaces, we will import the `moveit_commander`_ namespace.
-## This namespace provides us with a `MoveGroupCommander`_ class, a `PlanningSceneInterface`_ class,
-## and a `RobotCommander`_ class. (More on these below)
-##
-## We also import `rospy`_ and some messages that we will use:
-##
+# 7/11/18: Updated for use by Robust Autonomy and Decisions Group by Samantha Kim
 
 import sys
 import copy
@@ -53,7 +46,6 @@ import geometry_msgs.msg
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
-## END_SUB_TUTORIAL
 
 def all_close(goal, actual, tolerance):
   """
@@ -77,16 +69,13 @@ def all_close(goal, actual, tolerance):
 
   return True
 
-class MoveGroupPythonIntefaceTutorial(object):
-  """MoveGroupPythonIntefaceTutorial"""
+class MoveGroupPythonInterface(object):
   def __init__(self):
-    super(MoveGroupPythonIntefaceTutorial, self).__init__()
+    super(MoveGroupPythonInterface, self).__init__()
 
-    ## BEGIN_SUB_TUTORIAL setup
-    ##
-    ## First initialize `moveit_commander`_ and a `rospy`_ node:
+    ## Initialize `moveit_commander`_ and a `rospy`_ node:
     moveit_commander.roscpp_initialize(sys.argv)
-    rospy.init_node('move_group_python_interface_tutorial',
+    rospy.init_node('move_group_python_interface',
                     anonymous=True)
 
     ## Instantiate a `RobotCommander`_ object. This object is the outer-level interface to
@@ -114,30 +103,22 @@ class MoveGroupPythonIntefaceTutorial(object):
                                                    moveit_msgs.msg.DisplayTrajectory,
                                                    queue_size=20)
 
-    ## END_SUB_TUTORIAL
-
-    ## BEGIN_SUB_TUTORIAL basic_info
-    ##
-    ## Getting Basic Information
-    ## ^^^^^^^^^^^^^^^^^^^^^^^^^
-    # We can get the name of the reference frame for this robot:
+    # Print name of the reference frame for this robot:
     planning_frame = group.get_planning_frame()
     print "============ Reference frame: %s" % planning_frame
 
-    # We can also print the name of the end-effector link for this group:
+    # Print the name of the end-effector link for this group:
     eef_link = group.get_end_effector_link()
     print "============ End effector: %s" % eef_link
 
-    # We can get a list of all the groups in the robot:
+    # List of all the groups in the robot:
     group_names = robot.get_group_names()
     print "============ Robot Groups:", robot.get_group_names()
 
-    # Sometimes for debugging it is useful to print the entire state of the
-    # robot:
+    # Print the state of the robot:
     print "============ Printing robot state"
     print robot.get_current_state()
     print ""
-    ## END_SUB_TUTORIAL
 
     # Misc variables
     self.box_name = ''
@@ -150,16 +131,7 @@ class MoveGroupPythonIntefaceTutorial(object):
     self.group_names = group_names
 
 
-  def execute_collision(self):
-    # Copy class variables to local variables to make the web tutorials more clear.
-    # In practice, you should use the class variables directly unless you have a good
-    # reason not to.
-    group = self.group
-
-    waypoints = []
-
-    # quaternion = tf.transformations.quaternion_from_euler(0, 0, 0)
-
+  def execute_collision(self):   
     # Init pose
     init_pose = geometry_msgs.msg.Pose()
     init_pose.position.x = -0.488798937651
@@ -194,32 +166,32 @@ class MoveGroupPythonIntefaceTutorial(object):
     post_coll_pose.orientation.z = -0.504404664407
     post_coll_pose.orientation.w = 0.485448275813
 
-
-    # Add points to Cartesian path
-    waypoints.append(copy.deepcopy(pre_coll_pose))
-    waypoints.append(copy.deepcopy(post_coll_pose))
-    waypoints.append(copy.deepcopy(init_pose))
-
-
-    # Plan Cartesian path
-    (plan, fraction) = group.compute_cartesian_path(
-                                       waypoints,   # waypoints to follow
-                                       0.01,        # eef_step
-                                       1.2)         # jump_threshold
-
-    group.execute(plan, wait=True)
-
+    plan_and_execute_pose_goal(pre_coll_pose, true)
+    plan_and_execute_pose_goal(post_coll_pose, true)
+    plan_and_execute_pose_goal(init_pose, true)
+    
+    
+  def plan_pose_goal(pose_goal, execute = true):
+    # Add pose goals and execute path
+    self.group.set_pose_target(pose_goal)
+    plan = self.group.go(wait=True)
+    
+    # Calling `stop()` ensures that there is no residual movement
+    self.group.stop()
+    
+    # It is always good to clear your targets after planning with poses.
+    # Note: there is no equivalent function for clear_joint_value_targets()
+    self.group.clear_pose_targets()
 
 
 def main():
   try:
     # Initialize MoveIt commander
-    tutorial = MoveGroupPythonIntefaceTutorial()
-
-    tutorial.execute_collision()
-
-
+    robot_commander = MoveGroupPythonInterface()
+    # Execute collision
+    robot_commander.execute_collision()
     print "============ Collision complete!"
+    
   except rospy.ROSInterruptException:
     return
   except KeyboardInterrupt:
