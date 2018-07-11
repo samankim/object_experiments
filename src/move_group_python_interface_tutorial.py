@@ -170,7 +170,9 @@ class MoveGroupPythonInterface(object):
     plan_and_execute_pose_goal(post_coll_pose, true)
     plan_and_execute_pose_goal(init_pose, true)
     
-    
+  # Plans a pose goal and executes if indicated. This method is used
+  # instead of cartesian path planning and execution because it is
+  # subject to velocity and acceleration limitations.
   def plan_pose_goal(pose_goal, execute = true):
     # Add pose goals and execute path
     self.group.set_pose_target(pose_goal)
@@ -182,8 +184,21 @@ class MoveGroupPythonInterface(object):
     # It is always good to clear your targets after planning with poses.
     # Note: there is no equivalent function for clear_joint_value_targets()
     self.group.clear_pose_targets()
-
-
+  
+  
+  # Prints to screen the current pose in a format that is easily copied into the code for later use.
+  def get_formatted_current_pose(pose_name)
+    current_pose = self.group.get_current_pose()
+    print pose_name + " = geometry_msgs.msg.Pose()"
+    print pose_name + ".position.x = " str(current.pose.position.x)
+    print pose_name + ".position.y = " str(current.pose.position.y)
+    print pose_name + ".position.z = " str(current.pose.position.z)
+    print pose_name + ".orientation.x = " str(current.pose.orientation.x)
+    print pose_name + ".orientation.y = " str(current.pose.orientation.y)
+    print pose_name + ".orientation.z = " str(current.pose.orientation.z)
+    print pose_name + ".orientation.w = " str(current.pose.orientation.w)
+    
+    
 def main():
   try:
     # Initialize MoveIt commander
