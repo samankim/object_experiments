@@ -7,7 +7,14 @@ project(object_experiments)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED genmsg actionlib_msgs actionlib)
+find_package(catkin REQUIRED COMPONENTS roscpp
+										rospy
+										genmsg 
+										actionlib_msgs 
+										actionlib
+										std_msgs
+										message_generation
+										)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -50,14 +57,22 @@ find_package(catkin REQUIRED genmsg actionlib_msgs actionlib)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   DIRECTORY
+   srv 
+
+   FILES
+   ChoreographySrv.srv
+ )
 
 # Generate actions in the 'action' folder
- add_action_files(DIRECTORY action FILES Choreography.action)
+ add_action_files(
+   DIRECTORY 
+   action 
+
+   FILES
+   ChoreographyAction.action
+)
 
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
@@ -98,7 +113,7 @@ find_package(catkin REQUIRED genmsg actionlib_msgs actionlib)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES object_experiments
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS message_runtime 
 #  DEPENDS system_lib
 )
 

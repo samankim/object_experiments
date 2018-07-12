@@ -274,22 +274,22 @@ class MoveGroupPythonInterface(object):
 
 class Choreography(object):
   """
-  Set up an Action Server that expects Choreography messages.
-  When a Choreography goal is received, it executes the type of 
+  Set up an Action Server that expects ChoreographyAction messages.
+  When a ChoreographyAction goal is received, it executes the type of 
   choreography specified by the message.
   """
 
 
-  feedback = object_experiments.msg.ChoreographyFeedback()
-  result = object_experiments.msg.ChoreographyResult()
+  feedback = object_experiments.msg.ChoreographyActionFeedback()
+  result = object_experiments.msg.ChoreographyActionResult()
   success = True
 
   def __init__(self, name):
 	self.action_name = name
 	self.server = actionlib.SimpleActionServer(self.action_name, 
-											object_experiments.msg.Choreography, 
-											self.execute, 
-											auto_start = False)
+											   object_experiments.msg.ChoreographyAction, 
+											   self.execute, 
+											   auto_start = False)
 	self.server.start()
 
   def execute(self,goal):
