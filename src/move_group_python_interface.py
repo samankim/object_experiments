@@ -35,6 +35,8 @@
 # Author: Acorn Pooley, Mike Lautman
 
 # 7/11/18: Updated for use by Robust Autonomy and Decisions Group by Samantha Kim
+# Action code based on ROS wiki tutorial "Writing a Simple Action Server using the
+# Execute Callback (Python)".
 
 import sys
 import copy
@@ -71,25 +73,6 @@ def all_close(goal, actual, tolerance):
 
   return True
 
-class Choreography(object):
-  _feedback = object_experiments.msg.ChoreographyFeedback()
-  _result = object_experiments.msg.ChoreographyResult()
-
-  def __init__(self, name):
-	self.action_name = name
-	self.server = actionlib.SimpleActionServer(self.action_name, 
-											object_experiments.msg.Choreography, 
-											self.execute, 
-											auto_start = False)
-	self.server.start()
-
-  def execute(self,goal):
-	rospy.loginfo('Starting choreography: %s' % (goal))
-
-	execute_choreography(goal)
-
-	self.server.set_succeeded(self._result)
-
 
 class MoveGroupPythonInterface(object):
   def __init__(self):
@@ -116,10 +99,10 @@ class MoveGroupPythonInterface(object):
     group_name = "manipulator"
     group = moveit_commander.MoveGroupCommander(group_name)
     
-	# Initialize velocity and acceleration scaling factors to prevent
-	# overly fast movements. Can be changed later using the go_to_pose_goal
-	# and go_to_joint_state functions.
-	group.set_max_acceleration_scaling_factor(0.1)
+  	# Initialize velocity and acceleration scaling factors to prevent
+  	# overly fast movements. Can be changed later using the go_to_pose_goal
+  	# and go_to_joint_state functions.
+  	group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
 
 
@@ -157,7 +140,18 @@ class MoveGroupPythonInterface(object):
     self.group_names = group_names
 
 
-  def execute_collision(self):   
+
+
+  def knock_blocks(self):
+    """
+    Function: knock_blocks
+    ----------------------------------
+    UR10 will go to a pre-collision pose, bend at the elbow joint,
+    colliding with the block setup, and return to a neutral pose.
+    Poses were found using the teaching pendant.
+
+    """
+
     # Init pose
     init_pose = geometry_msgs.msg.Pose()
     init_pose.position.x = -0.488798937651
@@ -193,42 +187,55 @@ class MoveGroupPythonInterface(object):
     post_coll_pose.orientation.w = 0.485448275813
 
     
-	self.go_to_pose_goal(pre_coll_pose)
+	  self.go_to_pose_goal(pre_coll_pose)
 
 	# post-collision joint state
     post_coll_joint_goal = self.group.get_current_joint_values()
-	post_coll_joint_goal[3] -= pi / 6
+	  post_coll_joint_goal[3] -= pi / 6
 
     self.go_to_joint_state(post_coll_joint_goal)
 
     self.go_to_pose_goal(init_pose)
 
 
-  # Moves the robot to the specified joint state with the
-  # specified velocity and acceleration. Velocity
-  # and acceleration are values between [0,1], corresponding
-  # to the scaling factor for the reduction of the maximum 
-  # joint velocity and acceleration.
+
   def go_to_joint_state(self, joint_goal, velocity, acceleration):
+  """
+  Function: go_to_joint_state
+  ------------------------------------    
+  Moves the robot to the specified joint state with the
+  specified velocity and acceleration. Velocity
+  and acceleration are values between [0,1], corresponding
+  to the scaling factor for the reduction of the maximum 
+  joint velocity and acceleration.
+  """
+
     # Set velocity and acceleration scaling factors. 
     group.set_max_velocity_scaling_factor(velocity)
-	group.set_max_acceleration_scaling_factor(acceleration)
+	  group.set_max_acceleration_scaling_factor(acceleration)
 	
-	self.group.go(joint_goal, wait=True)
+	  self.group.go(joint_goal, wait=True)
 
     # Calling ``stop()`` ensures that there is no residual movement
     self.group.stop()
 
 
 
-  # Plans a pose goal and executes the path. This method is preferable 
-  # to cartesian path planning and execution because velocity and 
-  # acceleration limitations can be set.
+
   def go_to_pose_goal(self, pose_goal, velocity, acceleration):
+  """
+  Function: go_to_pose_goal
+  ------------------------------------    
+  Plans a pose goal and executes the path. This method is preferable 
+  to cartesian path planning and execution because velocity and 
+  acceleration limitations can be set.
+
+  """
+
     
 	# Set velocity and acceleration scaling factors. 
     group.set_max_velocity_scaling_factor(velocity)
-	group.set_max_acceleration_scaling_factor(acceleration)
+	  group.set_max_acceleration_scaling_factor(acceleration)
     
 	# Add pose goals and execute path
     self.group.set_pose_target(pose_goal)
@@ -243,9 +250,16 @@ class MoveGroupPythonInterface(object):
 
 
   
-  # Prints to screen the current pose of the robot in a format that allows 
-  # for easy hardcoding of a particular pose.
+
   def get_formatted_current_pose(self, pose_name):
+    """
+    Function: get_formatted_current_pose
+    ------------------------------------  
+    Prints to screen the current pose of the robot in a format that allows 
+    for easy hardcoding of a particular pose.
+    """
+
+
     current_pose = self.group.get_current_pose()
     print pose_name + " = geometry_msgs.msg.Pose()"
     print pose_name + ".position.x = " + str(current_pose.position.x)
@@ -255,21 +269,71 @@ class MoveGroupPythonInterface(object):
     print pose_name + ".orientation.y = " + str(current_pose.orientation.y)
     print pose_name + ".orientation.z = " + str(current_pose.orientation.z)
     print pose_name + ".orientation.w = " + str(current_pose.orientation.w)
+   
+ 
+
+class Choreography(object):
+  """
+  Set up an Action Server that expects Choreography messages.
+  When a Choreography goal is received, it executes the type of 
+  choreography specified by the message.
+  """
+
+
+  feedback = object_experiments.msg.ChoreographyFeedback()
+  result = object_experiments.msg.ChoreographyResult()
+  success = True
+
+  def __init__(self, name):
+	self.action_name = name
+	self.server = actionlib.SimpleActionServer(self.action_name, 
+											object_experiments.msg.Choreography, 
+											self.execute, 
+											auto_start = False)
+	self.server.start()
+
+  def execute(self,goal):
+    self.success = True
+	  rospy.loginfo('Starting choreography: %s' % (goal))
+    if not check_preempt():	
+        execute_choreography(goal)
+
+    if self.success:
+        rospy.loginfo('%s: Succeeded' % self.action_name)
+    	  self.server.set_succeeded(self.result)
+
+  def check_preempt():
+    if self.server.is_preempt_requested():
+        rospy.loginfo('%s: Preemepted' % self.action_name)
+        self.server.set_preempted()
+        self.success = False
+        return False
+    return True
     
 
-    
+
 def execute_choreography(goal):
+  """
+  Function: execute_choreography
+  ------------------------------------  
+  Executes the choreography specified as a goal.
+  Additional choreography options should be included here
+  as if/elif cases.
+  """
   try:
     # Initialize MoveIt commander
     robot_commander = MoveGroupPythonInterface()
-    # Execute collision
-    robot_commander.execute_collision()
-    print "============ Collision complete!"
+    # Execute choreography
+    if goal == "knock_blocks"
+        robot_commander.knock_blocks()
+    print "============ Choreography complete!"
     
   except rospy.ROSInterruptException:
     return
   except KeyboardInterrupt:
     return
+
+
 
 if __name__ == '__main__':
   rospy.init_node('choreography')
