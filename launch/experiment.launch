@@ -1,18 +1,31 @@
 <launch>
-        <arg name = "duration" value = "10s"/>
-        <!-- Begin robot arm script -->
+        <!-- Start up the UR10 -->
+	<include file = "$(find object_experiments)/launch/ur10_startup.launch">	
+		<arg name = "robot_ip" value = "129.215.96.116"/>	
+	</include>
+
+        <!-- Start up the Kinects -->
+	<include file = "$(find object_experiments)/launch/kinect_with_tf.launch"
+		output = "screen"
+		launch-prefix = "xterm -e"
+	>	
+		<arg name = "fps_limit" value = "10"/>	
+	</include>
+
+	<!-- Start up the robot script Action Service -->
         <node
                 name = "robot_script"
-                pkg = "moveit_tutorials"
-                type = "move_group_python_interface_tutorial.py"
+                pkg = "object_experiments"
+                type = "move_group_python_interface.py"
+		launch-prefix = "xterm -e"
         />
 
-        <!-- Record topics in rosbag -->
-        <node
-                name = "$(anon record_experiment)"
-                pkg = "rosbag"
-                type = "record"
-                args = "--duration=$(arg duration) -a"
+        <!-- Start up the rosbag recording service -->
+	<node
+		name = "rosbag_recording"
+		pkg = "object_experiments"
+		type = "rosbag_recording.py"
+		launch-prefix = "xterm -e"
         />
 </launch>
 

@@ -99,10 +99,10 @@ class MoveGroupPythonInterface(object):
     group_name = "manipulator"
     group = moveit_commander.MoveGroupCommander(group_name)
     
-  	# Initialize velocity and acceleration scaling factors to prevent
-  	# overly fast movements. Can be changed later using the go_to_pose_goal
-  	# and go_to_joint_state functions.
-  	group.set_max_acceleration_scaling_factor(0.1)
+    # Initialize velocity and acceleration scaling factors to prevent
+    # overly fast movements. Can be changed later using the go_to_pose_goal
+    # and go_to_joint_state functions.
+    group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
 
 
@@ -149,7 +149,6 @@ class MoveGroupPythonInterface(object):
     UR10 will go to a pre-collision pose, bend at the elbow joint,
     colliding with the block setup, and return to a neutral pose.
     Poses were found using the teaching pendant.
-
     """
 
     # Init pose
@@ -187,11 +186,11 @@ class MoveGroupPythonInterface(object):
     post_coll_pose.orientation.w = 0.485448275813
 
     
-	  self.go_to_pose_goal(pre_coll_pose)
+    self.go_to_pose_goal(pre_coll_pose)
 
-	# post-collision joint state
+    # Post-collision joint state
     post_coll_joint_goal = self.group.get_current_joint_values()
-	  post_coll_joint_goal[3] -= pi / 6
+    post_coll_joint_goal[3] -= pi / 6
 
     self.go_to_joint_state(post_coll_joint_goal)
 
@@ -200,21 +199,21 @@ class MoveGroupPythonInterface(object):
 
 
   def go_to_joint_state(self, joint_goal, velocity, acceleration):
-  """
-  Function: go_to_joint_state
-  ------------------------------------    
-  Moves the robot to the specified joint state with the
-  specified velocity and acceleration. Velocity
-  and acceleration are values between [0,1], corresponding
-  to the scaling factor for the reduction of the maximum 
-  joint velocity and acceleration.
-  """
+    """
+    Function: go_to_joint_state
+    ------------------------------------    
+    Moves the robot to the specified joint state with the
+    specified velocity and acceleration. Velocity
+    and acceleration are values between [0,1], corresponding
+    to the scaling factor for the reduction of the maximum 
+    joint velocity and acceleration.
+    """
 
     # Set velocity and acceleration scaling factors. 
     group.set_max_velocity_scaling_factor(velocity)
-	  group.set_max_acceleration_scaling_factor(acceleration)
-	
-	  self.group.go(joint_goal, wait=True)
+    group.set_max_acceleration_scaling_factor(acceleration)
+  
+    self.group.go(joint_goal, wait=True)
 
     # Calling ``stop()`` ensures that there is no residual movement
     self.group.stop()
@@ -223,21 +222,19 @@ class MoveGroupPythonInterface(object):
 
 
   def go_to_pose_goal(self, pose_goal, velocity, acceleration):
-  """
-  Function: go_to_pose_goal
-  ------------------------------------    
-  Plans a pose goal and executes the path. This method is preferable 
-  to cartesian path planning and execution because velocity and 
-  acceleration limitations can be set.
+    """
+    Function: go_to_pose_goal
+    ------------------------------------    
+    Plans a pose goal and executes the path. This method is preferable 
+    to cartesian path planning and execution because velocity and 
+    acceleration limitations can be set.
 
-  """
-
-    
-	# Set velocity and acceleration scaling factors. 
+    """
+    # Set velocity and acceleration scaling factors. 
     group.set_max_velocity_scaling_factor(velocity)
-	  group.set_max_acceleration_scaling_factor(acceleration)
+    group.set_max_acceleration_scaling_factor(acceleration)
     
-	# Add pose goals and execute path
+    # Add pose goals and execute path
     self.group.set_pose_target(pose_goal)
     plan = self.group.go(wait=True)
     
@@ -285,22 +282,22 @@ class Choreography(object):
   success = True
 
   def __init__(self, name):
-	self.action_name = name
-	self.server = actionlib.SimpleActionServer(self.action_name, 
-											   object_experiments.msg.ChoreographyAction, 
-											   self.execute, 
-											   auto_start = False)
-	self.server.start()
+  self.action_name = name
+  self.server = actionlib.SimpleActionServer(self.action_name, 
+                         object_experiments.msg.ChoreographyAction, 
+                         self.execute, 
+                         auto_start = False)
+  self.server.start()
 
   def execute(self,goal):
     self.success = True
-	  rospy.loginfo('Starting choreography: %s' % (goal))
-    if not check_preempt():	
+    rospy.loginfo('Starting choreography: %s' % (goal))
+    if not check_preempt(): 
         execute_choreography(goal)
 
     if self.success:
         rospy.loginfo('%s: Succeeded' % self.action_name)
-    	  self.server.set_succeeded(self.result)
+        self.server.set_succeeded(self.result)
 
   def check_preempt():
     if self.server.is_preempt_requested():
