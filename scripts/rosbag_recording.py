@@ -25,7 +25,7 @@ import object_experiments.msg
 import subprocess
 import signal
 
-def choreography_client(choreography):
+def choreography_client(choreo_name):
     # Creates the SimpleActionClient, passing the type of the action
     # (Choreography) to the constructor.
     client = actionlib.SimpleActionClient('choreography', object_experiments.msg.ChoreographyAction)
@@ -37,10 +37,11 @@ def choreography_client(choreography):
     # Adapted from https://answers.ros.org/question/10714/start-and-stop-rosbag-within-a-python-script/
     rospy.loginfo("Beginning rosbag recording.")
     command = "rosbag record -a"
-    rosbag_proc = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True, cwd=dir_save_bagfile)
+    rosbag_proc = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True)
 
     # Creates a goal to send to the action server.
-    goal = object_experiments.msg.ChoreographyAction(choreography)
+    goal = object_experiments.msg.ChoreographyGoal()
+    goal.choreography.data = choreo_name
     # Sends the goal to the action server.
     client.send_goal(goal)
     # Waits for the server to finish performing the action.
@@ -55,12 +56,10 @@ def choreography_client(choreography):
     rospy.loginfo("Stopping rosbag recording")
     rosbag_proc.send_signal(subprocess.signal.SIGINT)
 
-def handle_experiment(choreography):
+def handle_experiment(ChoreographySrv):
     try:
-        # Initializes a rospy node so that the SimpleActionClient can
-        # publish and subscribe over ROS.
-        rospy.init_node('choreography_client')
-        choreography_client(choreography)
+        choreo_name = ChoreographySrv.choreography
+	choreography_client(choreo_name)
         print ("Experiment has been executed.")
         return ChoreographySrvResponse(True)
     except rospy.ROSInterruptException:
@@ -68,7 +67,7 @@ def handle_experiment(choreography):
         return ChoreographySrvResponse(False)
 
 def experiment_server():
-    rospy.init_node('experiment_server')
+    rospy.init_node('choreography_client')
     s = rospy.Service('start_experiment', ChoreographySrv, handle_experiment)
     print("Ready to begin experiments.")
     rospy.spin()

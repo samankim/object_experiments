@@ -1,0 +1,8 @@
+# Goal definition
+string choreography # Specify which robot arm choreography to execute
+---
+# Result definition
+bool in_progress
+---
+# Feedback message
+bool success
