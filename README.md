@@ -21,5 +21,5 @@ elif goal == "name-of-choreography"
 
 ### To create a new pose based on the current pose of the robot:
 
-Move the robot to the desired pose.
-The generated text can then be copied and pasted into the code with the precise description of the robot's pose.
+1. Move the robot to the desired pose.
+2. The generated text can then be copied and pasted into the code with the precise description of the robot's pose.
