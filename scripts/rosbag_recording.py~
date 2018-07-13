@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # File: rosbag_recording.py
 # ------------------------------------  
 # Starts a service node that waits for a service call with
@@ -13,11 +11,12 @@
 # 7/11/18
 # By: Samantha Kim
 
+#!/usr/bin/env python
 from __future__ import print_function
 import rospy
 # Brings in the SimpleActionClient
 import actionlib
-from object_experiments.srv import *
+
 # Brings in the messages used by object experiments, including
 # the ChoreographyAction goal and result messages
 import object_experiments.msg
@@ -61,7 +60,7 @@ def handle_experiment(choreography):
         # publish and subscribe over ROS.
         rospy.init_node('choreography_client')
         choreography_client(choreography)
-        print ("Experiment has been executed.")
+        print "Experiment has been executed."
         return ChoreographySrvResponse(True)
     except rospy.ROSInterruptException:
         print("Program interrupted before completion", file=sys.stderr)
@@ -69,8 +68,8 @@ def handle_experiment(choreography):
 
 def experiment_server():
     rospy.init_node('experiment_server')
-    s = rospy.Service('start_experiment', ChoreographySrv, handle_experiment)
-    print("Ready to begin experiments.")
+    s = rospy.Service('experiment', ChoreographySrv, handle_experiment)
+    print "Ready to begin experiments."
     rospy.spin()
 
 if __name__ == '__main__':

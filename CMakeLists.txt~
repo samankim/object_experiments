@@ -72,7 +72,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp
    action 
 
    FILES
-   Choreography.action
+   ChoreographyAction.action
 )
 
 ## Generate added messages and services with any dependencies listed here
