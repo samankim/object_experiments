@@ -5,26 +5,25 @@
 	</include>
 
         <!-- Start up the Kinects -->
-	<include file = "$(find object_experiments)/launch/kinect_with_tf.launch"
-		output = "screen"
-		launch-prefix = "xterm -e"
-	>	
+	<include file = "$(find object_experiments)/launch/kinect_with_tf.launch">	
 		<arg name = "fps_limit" value = "10"/>	
 	</include>
 
 	<!-- Start up the robot script Action Service -->
         <node
-                name = "robot_script"
-                pkg = "object_experiments"
+                name = "choreography"
+		pkg = "object_experiments"
                 type = "move_group_python_interface.py"
+		output = "screen"
 		launch-prefix = "xterm -e"
         />
 
         <!-- Start up the rosbag recording service -->
 	<node
-		name = "rosbag_recording"
+		name = "choreography_client"
 		pkg = "object_experiments"
 		type = "rosbag_recording.py"
+		output = "screen"
 		launch-prefix = "xterm -e"
         />
 </launch>
