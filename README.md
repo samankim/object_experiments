@@ -8,6 +8,7 @@ The object_experiments package contains scripts for running experiments involvin
 3. In separate terminal windows:
   ```
   $ roslaunch object_experiments experiment.launch
+  Wait for initialization to be complete
   $ rosservice call /start_experiment "choreography:'desired-choreography-name'"
   ```
 
