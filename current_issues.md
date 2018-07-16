@@ -1,5 +1,5 @@
 # Current Issues
-- rosbag recordings are very laggy
+- rosbag recordings are very laggy when recording all topics
   - possible solutions:
     - start a new subprocess for each kinect and record a rosbag separately for each one
       - Functions to fix are in scripts/rosbag_recording.py, under choreography_client
