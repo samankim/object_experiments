@@ -51,37 +51,12 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 
-def all_close(goal, actual, tolerance):
-    """
-    Convenience method for testing if a list of values are within a tolerance of their counterparts in another list
-    @param: goal       A list of floats, a Pose or a PoseStamped
-    @param: actual     A list of floats, a Pose or a PoseStamped
-    @param: tolerance  A float
-    @returns: bool
-    """
-    all_equal = True
-    if type(goal) is list:
-        for index in range(len(goal)):
-            if abs(actual[index] - goal[index]) > tolerance:
-                return False
-
-    elif type(goal) is geometry_msgs.msg.PoseStamped:
-        return all_close(goal.pose, actual.pose, tolerance)
-
-    elif type(goal) is geometry_msgs.msg.Pose:
-        return all_close(pose_to_list(goal), pose_to_list(actual), tolerance)
-
-    return True
-
-
 class MoveGroupPythonInterface(object):
     def __init__(self):
         super(MoveGroupPythonInterface, self).__init__()
 
         ## Initialize `moveit_commander`_ and a `rospy`_ node:
         moveit_commander.roscpp_initialize(sys.argv)
-        # rospy.init_node('move_group_python_interface',
-        #                                 anonymous=True)
 
         ## Instantiate a `RobotCommander`_ object. This object is the outer-level interface to
         ## the robot:
@@ -197,7 +172,6 @@ class MoveGroupPythonInterface(object):
         self.go_to_pose_goal(init_pose, .1, .1)
 
 
-
     def go_to_joint_state(self, joint_goal, velocity, acceleration):
         """
         Function: go_to_joint_state
@@ -259,13 +233,13 @@ class MoveGroupPythonInterface(object):
 
         current_pose = self.group.get_current_pose()
         print pose_name + " = geometry_msgs.msg.Pose()"
-        print pose_name + ".position.x = " + str(current_pose.position.x)
-        print pose_name + ".position.y = " + str(current_pose.position.y)
-        print pose_name + ".position.z = " + str(current_pose.position.z)
-        print pose_name + ".orientation.x = " + str(current_pose.orientation.x)
-        print pose_name + ".orientation.y = " + str(current_pose.orientation.y)
-        print pose_name + ".orientation.z = " + str(current_pose.orientation.z)
-        print pose_name + ".orientation.w = " + str(current_pose.orientation.w)
+        print pose_name + ".position.x = " + str(current_pose.pose.position.x)
+        print pose_name + ".position.y = " + str(current_pose.pose.position.y)
+        print pose_name + ".position.z = " + str(current_pose.pose.position.z)
+        print pose_name + ".orientation.x = " + str(current_pose.pose.orientation.x)
+        print pose_name + ".orientation.y = " + str(current_pose.pose.orientation.y)
+        print pose_name + ".orientation.z = " + str(current_pose.pose.orientation.z)
+        print pose_name + ".orientation.w = " + str(current_pose.pose.orientation.w)
      
  
 
@@ -288,6 +262,7 @@ class Choreography(object):
                                                     self.execute, 
                                                     auto_start = False)
         self.server.start()
+        print("ActionServer initialized.")
 
     def execute(self,goal):
         self.success = True
@@ -320,11 +295,13 @@ def execute_choreography(goal):
     try:
         # Initialize MoveIt commander
         robot_commander = MoveGroupPythonInterface()
-        robot_commander.knock_blocks()
         # Execute choreography
-        # if goal.choreography = "knock_blocks":
-        #     robot_commander.knock_blocks()
-            # print "============ Choreography complete!"
+        print(goal.choreography.data)
+        if goal.choreography.data == "knock_blocks":
+            robot_commander.knock_blocks()
+        elif goal.choreography.data == "get_formatted_current_pose":
+            robot_commander.get_formatted_current_pose("your_pose_name")
+        print "============ Choreography complete!"
         
     except rospy.ROSInterruptException:
         return

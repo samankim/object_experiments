@@ -31,7 +31,7 @@ def choreography_client(choreo_name):
     client = actionlib.SimpleActionClient('choreography', object_experiments.msg.ChoreographyAction)
     # Waits until the action server has started up and started
     # listening for goals.
-    print("waiting for server")
+    print("Waiting for server...")
     client.wait_for_server()
 
     # Start the rosbag recording
@@ -45,7 +45,7 @@ def choreography_client(choreo_name):
     goal.choreography.data = choreo_name
     # Sends the goal to the action server.
     client.send_goal(goal)
-    print("goal sent")
+    print("Goal sent.")
     # Waits for the server to finish performing the action.
     client.wait_for_result()
 
