@@ -17,7 +17,7 @@ The object_experiments package contains scripts for running experiments involvin
 4. You may define a series of pose goals and joint states that the UR10 will execute, along with the desired velocity and acceleration of the movement.
 5. In the execute_choreography function, add another if/elif statement detailing the name that will call your new choreography.
 ```python
-elif goal == "name-of-choreography"
+elif goal.choreography.data == "name-of-choreography"
   robot_commander.choreography-function-name()
 ```
 
