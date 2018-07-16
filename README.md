@@ -11,7 +11,7 @@ The object_experiments package contains scripts for running experiments involvin
 
 ### To add new choreography:
 
-1. Go to the /scripts folder
+1. Navigate to the object_experiments/scripts folder
 2. Open 'move_group_python_interface.py' in your preferred text editor
 3. Under the MoveGroupPythonInterface class, add another function with the name of your choreography. The 'knock_blocks' choreography is there as an example.
 4. You may define a series of pose goals and joint states that the UR10 will execute, along with the desired velocity and acceleration of the movement.
