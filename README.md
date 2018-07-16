@@ -31,3 +31,10 @@ elif goal == "name-of-choreography"
 1. Download the package to ~/catkin_ws/src
 2. Navigate back to ~/catkin_ws (`$ cd ..`)
 3. Run `catkin_make`
+
+### Necessary packages
+- apriltags_ros
+- iai_kinect2
+- rad_ur10_stack (Note: does not fully compile)
+- robotiq (Note: not necessary to run experiments, contains models of the gripper. Also does not fully compile.)
+- MultiKinect (/Bishop/MultiKinect)
