@@ -5,12 +5,9 @@ The object_experiments package contains scripts for running experiments involvin
 
 1. Turn on the UR10 and initialize it
 2. Place necessary objects for experiment inside UR10 gripper prior to running the script (e.g. pick up pencil for "knock_blocks" experiment)
-3. In separate terminal windows:
-  ```
-  $ roslaunch object_experiments experiment.launch
-  Wait for initialization to be complete
-  $ rosservice call /start_experiment "choreography:'desired-choreography-name'"
-  ```
+3. Run `$ roslaunch object_experiments experiment.launch`
+4. Wait for initialization to be complete
+5. Call your desired choreography using: `$ rosservice call /start_experiment "choreography:'desired-choreography-name'"`
 
 ### To add new choreography:
 
