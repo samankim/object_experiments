@@ -4,6 +4,10 @@ The object_experiments package contains scripts for running experiments involvin
 ### To run an experiment:
 
 1. Turn on the UR10 and initialize it
+	1. Press power button
+	2. When dialog box pops up, press "Go to initialization screen"
+	3. Press "ON"
+	4. Press "START"
 2. Place necessary objects for experiment inside UR10 gripper prior to running the script (e.g. pick up pencil for "knock_blocks" experiment)
 3. Run `$ roslaunch object_experiments experiment.launch`
 4. Wait for initialization to be complete
@@ -20,6 +24,18 @@ The object_experiments package contains scripts for running experiments involvin
 elif goal.choreography.data == "name-of-choreography"
   robot_commander.choreography-function-name()
 ```
+
+### To change the directory to which bagfiles are saved/topics to record:
+
+1. Navigate to the object_experiments/scripts folder
+2. Open 'rosbag_recording.py' in your preferred text editor
+3. Under the function `choreography_client`, change the variable `command` to read:
+
+to record some topics:
+`command = rosbag record -o your-desired-bagfile-directory.../bagfile-name-prefix [topics-to-record]`
+
+to record all topics:
+`command = rosbag record -a -o your-desired-bagfile-directory.../bagfile-name-prefix`
 
 ### To hard-code a new pose in 'move_group_python_interface.py':
 

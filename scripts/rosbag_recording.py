@@ -24,6 +24,7 @@ import object_experiments.msg
 # For rosbag recording
 import subprocess
 import signal
+import os
 
 def choreography_client(choreo_name):
     # Creates the SimpleActionClient, passing the type of the action
@@ -37,7 +38,7 @@ def choreography_client(choreo_name):
     # Start the rosbag recording
     # Adapted from https://answers.ros.org/question/10714/start-and-stop-rosbag-within-a-python-script/
     rospy.loginfo("Beginning rosbag recording.")
-    command = "rosbag record -a"
+    command = "rosbag record -o '/media/ratchet/TOSHIBA EXT/kinect_bagfiles/knock_8_blocks_.1_kinect_2_hd' /kinect_2/hd/image_color_rect"
     rosbag_proc = subprocess.Popen(command, stdin=subprocess.PIPE, shell=True)
 
     # Creates a goal to send to the action server.
@@ -55,8 +56,17 @@ def choreography_client(choreo_name):
 
     # Stop the rosbag recording
     # Adapted from https://answers.ros.org/question/10714/start-and-stop-rosbag-within-a-python-script/
-    rospy.loginfo("Stopping rosbag recording")
-    rosbag_proc.send_signal(subprocess.signal.SIGINT)
+    terminate_ros_node("/record")
+
+def terminate_ros_node(s):
+    list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
+    list_output = list_cmd.stdout.read()
+    retcode = list_cmd.wait()
+    assert retcode == 0, "List command returned %d" % retcode
+    for str in list_output.split("\n"):
+        if (str.startswith(s + "_") or str == s):
+            os.system("rosnode kill " + str)
+
 
 def handle_experiment(ChoreographySrv):
     try:

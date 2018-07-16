@@ -142,7 +142,7 @@ class MoveGroupPythonInterface(object):
         pre_coll_pose = geometry_msgs.msg.Pose()
         pre_coll_pose.position.x = -0.558980015093
         pre_coll_pose.position.y = 0.290542710322
-        pre_coll_pose.position.z = -1.07752385597
+        pre_coll_pose.position.z = -1.04752385597
         
         pre_coll_pose.orientation.x = 0.485564471115
         pre_coll_pose.orientation.y = 0.524631938133
@@ -296,7 +296,7 @@ def execute_choreography(goal):
         # Initialize MoveIt commander
         robot_commander = MoveGroupPythonInterface()
         # Execute choreography
-        print(goal.choreography.data)
+        print("Executing: " + goal.choreography.data)
         if goal.choreography.data == "knock_blocks":
             robot_commander.knock_blocks()
         elif goal.choreography.data == "get_formatted_current_pose":

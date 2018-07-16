@@ -6,7 +6,7 @@
 
         <!-- Start up the Kinects -->
 	<include file = "$(find object_experiments)/launch/kinect_with_tf.launch">	
-		<arg name = "fps_limit" value = "10"/>	
+		<arg name = "fps_limit" value = "30"/>	
 	</include>
 
 	<!-- Start up the robot script Action Service -->
