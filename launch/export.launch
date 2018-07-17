@@ -1,3 +1,4 @@
+<!-- Launch file to extract jpegs from bag files. Adapted from ROS Tutorial: "How to export image and video data from a bag file"-->
 <launch>
   <arg name = "file_name"/>
   <node pkg="rosbag" type="play" name="rosbag" required="true" args="/media/ratchet/TOSHIBA\ EXT/kinect_bagfiles/$(arg file_name)"/>
